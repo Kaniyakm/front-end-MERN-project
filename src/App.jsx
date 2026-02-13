@@ -1,24 +1,43 @@
-// PHASE 3-2: Routing Setup
-// Defines all main pages from your Figma wireframe
+// src/App.jsx
+// PHASE 3 STEP 2: Application Routing Configuration
+// NOTES:
+// - Defines public and protected routes
+// - Uses ProtectedRoute wrapper for authentication enforcement
+// - Enables clean separation between public and secured views
 
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
-import ProjectPage from "./pages/ProjectPage";
-import NotFound from "./pages/NotFound";
+import ProjectDetails from "./pages/ProjectDetails";
+import ProtectedRoute from "./routes/ProtectedRoute";
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Dashboard />} />
-        <Route path="/project/:id" element={<ProjectPage />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-    </BrowserRouter>
+    <Routes>
+      {/* Public Routes */}
+      <Route path="/" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+
+      {/* Protected Routes */}
+      <Route
+        path="/dashboard"
+        element={
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/projects/:id"
+        element={
+          <ProtectedRoute>
+            <ProjectDetails />
+          </ProtectedRoute>
+        }
+      />
+    </Routes>
   );
 }
 
