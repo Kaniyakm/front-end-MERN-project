@@ -1,83 +1,67 @@
-import { useState } from "react";
+/*****************************************************************************************
+ FILE: Register.jsx
+ ------------------------------------------------------------------------------------------
+ PURPOSE:
+ Registers new user and redirects to login.
+
+ BACKEND:
+ POST /auth/register
+*****************************************************************************************/
+
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "../api/api";
+import authService from "../api/authService";
+import { toast } from "react-toastify";
 
 const Register = () => {
   const navigate = useNavigate();
-
-  const [formData, setFormData] = useState({
+  const [form, setForm] = useState({
     name: "",
     email: "",
     password: "",
   });
 
-  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  };
+  /* -------------------------------------------------------------------------- */
+  /* HANDLE REGISTER                                                            */
+  /* -------------------------------------------------------------------------- */
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
+    setLoading(true);
 
     try {
-      await api.post("/auth/register", formData);
+      await authService.register(form); // CONNECTS TO BACKEND
+      toast.success("Account created successfully!");
       navigate("/login");
-    } catch (err) {
-      setError(
-        err.response?.data?.message || "Registration failed"
-      );
+    } catch (error) {
+      toast.error("Registration failed");
+    } finally {
+      setLoading(false);
     }
   };
 
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md">
-        <h2 className="text-2xl font-semibold mb-6 text-center">
-          Create Account
-        </h2>
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900">
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg w-96 space-y-6"
+      >
+        <h2 className="text-2xl font-bold text-center">Register</h2>
 
-        {error && (
-          <p className="text-red-500 text-sm mb-4">{error}</p>
-        )}
+        <input name="name" placeholder="Name" onChange={handleChange} required className="w-full p-3 border rounded" />
+        <input name="email" type="email" placeholder="Email" onChange={handleChange} required className="w-full p-3 border rounded" />
+        <input name="password" type="password" placeholder="Password" onChange={handleChange} required className="w-full p-3 border rounded" />
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <input
-            type="text"
-            name="name"
-            placeholder="Full Name"
-            onChange={handleChange}
-            className="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-          />
-
-          <input
-            type="email"
-            name="email"
-            placeholder="Email"
-            onChange={handleChange}
-            className="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-          />
-
-          <input
-            type="password"
-            name="password"
-            placeholder="Password"
-            onChange={handleChange}
-            className="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-          />
-
-          <button
-            type="submit"
-            className="w-full bg-blue-600 text-white py-3 rounded-lg hover:opacity-90 transition"
-          >
-            Register
-          </button>
-        </form>
-      </div>
+        <button className="w-full bg-green-600 text-white p-3 rounded hover:scale-105 transition">
+          {loading ? "Creating..." : "Register"}
+        </button>
+      </form>
     </div>
   );
 };

@@ -7,16 +7,76 @@
 // - Exposes login and logout functions globally
 
 import { createContext, useEffect, useState } from "react";
-import API from "../api/axios";
+import api from "../api/api";
+
+/*
+========================================================
+FILE PURPOSE:
+Provides global authentication state across application.
+
+WHAT THIS DOES:
+- Stores authenticated user
+- Stores JWT token
+- Exposes login / logout functions
+- Persists auth on refresh
+========================================================
+*/
 
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
+  /*
+  ------------------------------------------------------
+  STATE VARIABLES
+  ------------------------------------------------------
+  user: stores logged-in user data
+  token: JWT token from backend
+  loading: prevents rendering before auth check completes
+  ------------------------------------------------------
+  */
+
   const [user, setUser] = useState(null);
+  const [token, setToken] = useState(
+    localStorage.getItem("token")
+  );
   const [loading, setLoading] = useState(true);
 
-  const token = localStorage.getItem("token");
+  /*
+  ------------------------------------------------------
+  METHOD: login()
+  PURPOSE:
+  - Saves token
+  - Saves user
+  - Stores token in localStorage
+  ------------------------------------------------------
+  */
+  const login = (userData, jwt) => {
+    setUser(userData);
+    setToken(jwt);
+    localStorage.setItem("token", jwt);
+  };
 
+  /*
+  ------------------------------------------------------
+  METHOD: logout()
+  PURPOSE:
+  - Clears auth state
+  - Removes token
+  ------------------------------------------------------
+  */
+  const logout = () => {
+    setUser(null);
+    setToken(null);
+    localStorage.removeItem("token");
+  };
+
+  /*
+  ------------------------------------------------------
+  AUTH PERSISTENCE CHECK
+  Runs once on app load
+  Verifies token by calling backend
+  ------------------------------------------------------
+  */
   useEffect(() => {
     const verifyUser = async () => {
       if (!token) {
@@ -25,10 +85,10 @@ export const AuthProvider = ({ children }) => {
       }
 
       try {
-        const response = await API.get("/auth/me");
-        setUser(response.data);
-      } catch (error) {
-        localStorage.removeItem("token");
+        const res = await api.get("/auth/me");
+        setUser(res.data);
+      } catch {
+        logout();
       } finally {
         setLoading(false);
       }
@@ -37,21 +97,11 @@ export const AuthProvider = ({ children }) => {
     verifyUser();
   }, [token]);
 
-  const login = (jwt) => {
-    localStorage.setItem("token", jwt);
-    window.location.href = "/dashboard";
-  };
-
-  const logout = () => {
-    localStorage.removeItem("token");
-    setUser(null);
-    window.location.href = "/";
-  };
-
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading }}>
+    <AuthContext.Provider
+      value={{ user, token, login, logout, loading }}
+    >
       {children}
     </AuthContext.Provider>
   );
 };
-

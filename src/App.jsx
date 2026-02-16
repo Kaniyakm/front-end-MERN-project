@@ -1,43 +1,65 @@
-// src/App.jsx
-// PHASE 3 STEP 2: Application Routing Configuration
-// NOTES:
-// - Defines public and protected routes
-// - Uses ProtectedRoute wrapper for authentication enforcement
-// - Enables clean separation between public and secured views
+/*****************************************************************************************
+ FILE: App.jsx
+ ------------------------------------------------------------------------------------------
+ PURPOSE:
+ Defines application routing.
+ Separates public and protected routes.
 
-import { Routes, Route } from "react-router-dom";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import Dashboard from "./pages/Dashboard";
+*****************************************************************************************/
+
+import React from "react";
+import { Routes, Route, Navigate } from "react-router-dom"; // Add Navigate
+
+import Layout from "./components/layout/Layout";
 import ProtectedRoute from "./routes/ProtectedRoute";
 
-function App() {
+import Dashboard from "./pages/Dashboard";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import ProjectPage from "./pages/ProjectPage";
+import ProjectDetails from "./pages/ProjectDetails";
+import NotFound from "./pages/NotFound";
+
+const App = () => {
   return (
-    <Routes>
-      {/* Public Routes */}
-      <Route path="/" element={<Login />} />
-      <Route path="/register" element={<Register />} />
+    <Layout>
+      <Routes>
+        {/* ADD THIS LINE - Root Route */}
+        <Route path="/" element={<Navigate to="/login" replace />} />
 
-      {/* Protected Routes */}
-      <Route
-        path="/dashboard"
-        element={
-          <ProtectedRoute>
-            <Dashboard />
-          </ProtectedRoute>
-        }
-      />
+        {/* Public Routes */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
 
-      <Route
-        path="/projects/:id"
-        element={
-          <ProtectedRoute>
-            <ProjectDetails />
-          </ProtectedRoute>
-        }
-      />
-    </Routes>
+        {/* Protected Routes */}
+        <Route
+          path="/dashboard"
+          element={<Dashboard />}
+        />
+
+        <Route
+          path="/projects"
+          element={
+            <ProtectedRoute>
+              <ProjectPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/projects/:id"
+          element={
+            <ProtectedRoute>
+              <ProjectDetails />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Fallback */}
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </Layout>
   );
-}
+};
 
 export default App;

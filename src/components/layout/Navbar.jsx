@@ -1,37 +1,96 @@
-/* ============================================================
-   PHASE 3-4: NAVBAR COMPONENT
-   ============================================================ */
+/*****************************************************************************************
+ FILE: Navbar.jsx
+ ------------------------------------------------------------------------------------------
+ PURPOSE:
+ Global top navigation bar for the application.
 
-import { useState } from "react";
-import { FaBars } from "react-icons/fa";
+ RESPONSIBILITIES:
+ - Navigation links
+ - Logout functionality
+ - Theme toggle trigger
+ - Branding
+
+ ARCHITECTURE ROLE:
+ - Presentational + Light Logic
+ - Uses AuthContext (logout)
+ - Uses ThemeContext (dark/light toggle)
+ - Used inside Layout.jsx
+
+ BACKEND CONNECTION:
+ - Logout clears JWT from localStorage via AuthContext
+ - Does NOT directly call backend
+
+*****************************************************************************************/
+
+import React, { useContext } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { ThemeContext } from "../../context/ThemeContext";
+import { useAuth } from "../../hooks/useAuth";
 
 const Navbar = () => {
-  const [open, setOpen] = useState(false);
+  const { toggleTheme } = useContext(ThemeContext);
+  const { logout, user } = useAuth(); 
+  const navigate = useNavigate();
+
+  /* -------------------------------------------------------------------------- */
+  /* HANDLE LOGOUT                                                              */
+  /* -------------------------------------------------------------------------- */
+  const handleLogout = () => {
+    logout(); // Clears token (AuthContext handles localStorage)
+    navigate("/login");
+  };
 
   return (
-    <nav className="bg-primary text-white px-6 py-4 shadow-md">
-      <div className="flex justify-between items-center">
-        <h1 className="font-bold text-lg">Balance Blueprint</h1>
+    <nav className="bg-white dark:bg-gray-800 shadow-md px-8 py-4 flex justify-between items-center transition-all duration-300">
 
-        <button
-          onClick={() => setOpen(!open)}
-          className="md:hidden transition-transform duration-300 hover:scale-110"
+      {/* BRANDING */}
+      <Link
+        to="/dashboard"
+        className="text-2xl font-bold text-blue-600 hover:scale-105 transition"
+      >
+         SmartFinance
+      </Link>
+
+      {/* NAVIGATION LINKS */}
+      <div className="flex items-center space-x-6">
+
+        <Link
+          to="/dashboard"
+          className="hover:text-blue-500 transition"
         >
-          <FaBars />
+          Dashboard
+        </Link>
+
+        <Link
+          to="/projects"
+          className="hover:text-blue-500 transition"
+        >
+          Projects
+        </Link>
+
+        {/* THEME TOGGLE */}
+        <button
+          onClick={toggleTheme}
+          className="bg-gray-200 dark:bg-gray-700 px-4 py-2 rounded-lg hover:scale-105 transition"
+        >
+          Toggle Theme
         </button>
 
-        <div className="hidden md:flex gap-6">
-          <a className="hover:text-accent transition">Dashboard</a>
-          <a className="hover:text-accent transition">Projects</a>
-        </div>
-      </div>
+        {/* USER INFO */}
+        {user && (
+          <span className="text-sm text-gray-500">
+            {user.email}
+          </span>
+        )}
 
-      {open && (
-        <div className="mt-4 flex flex-col gap-4 md:hidden animate-slideDown">
-          <a>Dashboard</a>
-          <a>Projects</a>
-        </div>
-      )}
+        {/* LOGOUT BUTTON */}
+        <button
+          onClick={handleLogout}
+          className="bg-red-500 text-white px-4 py-2 rounded-lg hover:scale-105 transition"
+        >
+          Logout
+        </button>
+      </div>
     </nav>
   );
 };

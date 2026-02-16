@@ -1,4 +1,5 @@
-import { useState } from "react";
+import React, { useState } from "react";
+import { useNavigate, Link } from "react-router-dom"; 
 import api from "../api/api";
 
 const Login = () => {
@@ -53,6 +54,14 @@ const Login = () => {
           >
             Login
           </button>
+
+          {/* ADD THIS: */}
+          <p className="text-center text-gray-600 mt-4">
+            Don't have an account?{" "}
+            <Link to="/register" className="text-blue-600 hover:underline font-semibold">
+              Register here
+            </Link>
+          </p>
         </form>
       </div>
     </div>

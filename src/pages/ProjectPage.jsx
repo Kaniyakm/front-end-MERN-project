@@ -1,18 +1,56 @@
-import { useEffect, useState } from "react";
-import api from "../api/api";
-import Navbar from "../components/layout/Navbar";
+/*****************************************************************************************
+ FILE: ProjectPage.jsx
+ ------------------------------------------------------------------------------------------
+ PURPOSE:
+ This page allows users to:
+ 1. Create new financial projects
+ 2. Edit existing projects
+ 3. Delete projects
+ 4. Assign projects to 50/30/20 categories
+
+ ARCHITECTURE ROLE:
+ - UI layer (Page level)
+ - Connects to projectService (backend communication)
+ - Manages local state
+ - Renders project list + form
+
+ BACKEND CONNECTION:
+ - projectService.getProjects()
+ - projectService.createProject()
+ - projectService.updateProject()
+ - projectService.deleteProject()
+
+*****************************************************************************************/
+
+import React, { useState, useEffect } from "react";
+import { toast } from "react-toastify";
+import projectService from "../api/projectService";
 
 const ProjectPage = () => {
+  /* -------------------------------------------------------------------------- */
+  /* STATE MANAGEMENT                                                           */
+  /* -------------------------------------------------------------------------- */
+
   const [projects, setProjects] = useState([]);
   const [title, setTitle] = useState("");
   const [amount, setAmount] = useState("");
+  const [category, setCategory] = useState("needs");
+  const [editingId, setEditingId] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  /* -------------------------------------------------------------------------- */
+  /* FETCH PROJECTS (CONNECTS TO BACKEND)                                      */
+  /* -------------------------------------------------------------------------- */
 
   const fetchProjects = async () => {
     try {
-      const res = await api.get("/projects");
-      setProjects(res.data);
+      setLoading(true);
+      const data = await projectService.getProjects();
+      setProjects(data);
     } catch (error) {
-      console.error(error);
+      toast.error("Failed to load projects");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -20,91 +58,136 @@ const ProjectPage = () => {
     fetchProjects();
   }, []);
 
-  const handleCreate = async (e) => {
+  /* -------------------------------------------------------------------------- */
+  /* HANDLE CREATE OR UPDATE                                                    */
+  /* -------------------------------------------------------------------------- */
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
     try {
-      await api.post("/projects", {
-        title,
-        amount,
-      });
+      if (editingId) {
+        await projectService.updateProject(editingId, {
+          title,
+          amount,
+          category,
+        });
+        toast.success("Project updated successfully");
+        setEditingId(null);
+      } else {
+        await projectService.createProject({
+          title,
+          amount,
+          category,
+        });
+        toast.success("Project created successfully");
+      }
+
       setTitle("");
       setAmount("");
+      setCategory("needs");
       fetchProjects();
     } catch (error) {
-      console.error(error);
+      toast.error("Something went wrong");
     }
   };
+
+  /* -------------------------------------------------------------------------- */
+  /* HANDLE DELETE                                                              */
+  /* -------------------------------------------------------------------------- */
 
   const handleDelete = async (id) => {
     try {
-      await api.delete(`/projects/${id}`);
+      await projectService.deleteProject(id);
+      toast.success("Project deleted");
       fetchProjects();
     } catch (error) {
-      console.error(error);
+      toast.error("Delete failed");
     }
   };
 
+  /* -------------------------------------------------------------------------- */
+  /* HANDLE EDIT                                                                */
+  /* -------------------------------------------------------------------------- */
+
+  const handleEdit = (project) => {
+    setTitle(project.title);
+    setAmount(project.amount);
+    setCategory(project.category);
+    setEditingId(project._id);
+  };
+
+  /* -------------------------------------------------------------------------- */
+  /* RENDER                                                                     */
+  /* -------------------------------------------------------------------------- */
+
   return (
-    <div className="min-h-screen bg-gray-100">
-      <Navbar />
+    <div className="p-8 max-w-4xl mx-auto">
+      <h1 className="text-3xl font-bold mb-6">Project Manager</h1>
 
-      <div className="p-8">
-        <h1 className="text-2xl font-semibold mb-6">
-          Financial Projects
-        </h1>
+      {/* FORM SECTION */}
+      <form onSubmit={handleSubmit} className="space-y-4 mb-8">
+        <input
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder="Project title"
+          className="w-full border p-3 rounded"
+          required
+        />
 
-        <form
-          onSubmit={handleCreate}
-          className="bg-white p-6 rounded-xl shadow mb-8 space-y-4"
+        <input
+          type="number"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+          placeholder="Amount"
+          className="w-full border p-3 rounded"
+          required
+        />
+
+        <select
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+          className="w-full border p-3 rounded"
         >
-          <input
-            type="text"
-            placeholder="Project Title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            className="w-full border border-gray-300 p-3 rounded-lg"
-          />
+          <option value="needs">Needs</option>
+          <option value="wants">Wants</option>
+          <option value="savings">Savings</option>
+        </select>
 
-          <input
-            type="number"
-            placeholder="Amount"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            className="w-full border border-gray-300 p-3 rounded-lg"
-          />
+        <button className="bg-blue-600 text-white px-6 py-3 rounded">
+          {editingId ? "Update Project" : "Add Project"}
+        </button>
+      </form>
 
-          <button
-            type="submit"
-            className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:opacity-90 transition"
+      {/* PROJECT LIST */}
+      <div className="space-y-4">
+        {projects.map((project) => (
+          <div
+            key={project._id}
+            className="p-4 border rounded flex justify-between"
           >
-            Add Project
-          </button>
-        </form>
+            <div>
+              <h2 className="font-semibold">{project.title}</h2>
+              <p>${project.amount}</p>
+              <p className="text-sm text-gray-500">{project.category}</p>
+            </div>
 
-        <div className="space-y-4">
-          {projects.map((project) => (
-            <div
-              key={project._id}
-              className="bg-white p-4 rounded-xl shadow flex justify-between items-center"
-            >
-              <div>
-                <h2 className="font-semibold">
-                  {project.title}
-                </h2>
-                <p className="text-gray-500">
-                  ${project.amount}
-                </p>
-              </div>
-
+            <div>
+              <button
+                onClick={() => handleEdit(project)}
+                className="text-blue-500 mr-4"
+              >
+                Edit
+              </button>
               <button
                 onClick={() => handleDelete(project._id)}
-                className="text-red-500 hover:underline"
+                className="text-red-500"
               >
                 Delete
               </button>
             </div>
-          ))}
-        </div>
+          </div>
+        ))}
       </div>
     </div>
   );
