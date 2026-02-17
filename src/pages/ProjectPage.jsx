@@ -2,55 +2,36 @@
  FILE: ProjectPage.jsx
  ------------------------------------------------------------------------------------------
  PURPOSE:
- This page allows users to:
- 1. Create new financial projects
- 2. Edit existing projects
- 3. Delete projects
- 4. Assign projects to 50/30/20 categories
-
- ARCHITECTURE ROLE:
- - UI layer (Page level)
- - Connects to projectService (backend communication)
- - Manages local state
- - Renders project list + form
-
- BACKEND CONNECTION:
- - projectService.getProjects()
- - projectService.createProject()
- - projectService.updateProject()
- - projectService.deleteProject()
-
+ - Create new project
+ - Update existing project
+ - Display project list
+ - Delete project
+ - Toast notifications
 *****************************************************************************************/
 
 import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
-import projectService from "../api/projectService";
+import api from "../api/api";
 
 const ProjectPage = () => {
   /* -------------------------------------------------------------------------- */
-  /* STATE MANAGEMENT                                                           */
+  /* STATE                                                                      */
   /* -------------------------------------------------------------------------- */
-
   const [projects, setProjects] = useState([]);
   const [title, setTitle] = useState("");
   const [amount, setAmount] = useState("");
   const [category, setCategory] = useState("needs");
   const [editingId, setEditingId] = useState(null);
-  const [loading, setLoading] = useState(false);
 
   /* -------------------------------------------------------------------------- */
-  /* FETCH PROJECTS (CONNECTS TO BACKEND)                                      */
+  /* FETCH PROJECTS                                                             */
   /* -------------------------------------------------------------------------- */
-
   const fetchProjects = async () => {
     try {
-      setLoading(true);
-      const data = await projectService.getProjects();
-      setProjects(data);
+      const response = await api.get("/projects");
+      setProjects(response.data);
     } catch (error) {
-      toast.error("Failed to load projects");
-    } finally {
-      setLoading(false);
+      toast.error("Failed to fetch projects");
     }
   };
 
@@ -61,21 +42,19 @@ const ProjectPage = () => {
   /* -------------------------------------------------------------------------- */
   /* HANDLE CREATE OR UPDATE                                                    */
   /* -------------------------------------------------------------------------- */
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
       if (editingId) {
-        await projectService.updateProject(editingId, {
+        await api.put(`/projects/${editingId}`, {
           title,
           amount,
           category,
         });
         toast.success("Project updated successfully");
-        setEditingId(null);
       } else {
-        await projectService.createProject({
+        await api.post("/projects", {
           title,
           amount,
           category,
@@ -86,102 +65,101 @@ const ProjectPage = () => {
       setTitle("");
       setAmount("");
       setCategory("needs");
+      setEditingId(null);
       fetchProjects();
+
     } catch (error) {
       toast.error("Something went wrong");
     }
   };
 
   /* -------------------------------------------------------------------------- */
-  /* HANDLE DELETE                                                              */
+  /* DELETE PROJECT                                                             */
   /* -------------------------------------------------------------------------- */
-
   const handleDelete = async (id) => {
     try {
-      await projectService.deleteProject(id);
+      await api.delete(`/projects/${id}`);
       toast.success("Project deleted");
       fetchProjects();
-    } catch (error) {
+    } catch {
       toast.error("Delete failed");
     }
   };
 
-  /* -------------------------------------------------------------------------- */
-  /* HANDLE EDIT                                                                */
-  /* -------------------------------------------------------------------------- */
-
-  const handleEdit = (project) => {
-    setTitle(project.title);
-    setAmount(project.amount);
-    setCategory(project.category);
-    setEditingId(project._id);
-  };
-
-  /* -------------------------------------------------------------------------- */
-  /* RENDER                                                                     */
-  /* -------------------------------------------------------------------------- */
-
   return (
-    <div className="p-8 max-w-4xl mx-auto">
-      <h1 className="text-3xl font-bold mb-6">Project Manager</h1>
+    <div className="p-6 max-w-4xl mx-auto">
 
-      {/* FORM SECTION */}
-      <form onSubmit={handleSubmit} className="space-y-4 mb-8">
+      <h2 className="text-2xl font-bold mb-4">Projects</h2>
+
+      {/* FORM */}
+      <form onSubmit={handleSubmit} className="space-y-3 mb-6 bg-white p-4 rounded-xl shadow">
+
         <input
+          type="text"
+          placeholder="Project title"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          placeholder="Project title"
-          className="w-full border p-3 rounded"
+          className="w-full border p-2 rounded"
           required
         />
 
         <input
           type="number"
+          placeholder="Amount"
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
-          placeholder="Amount"
-          className="w-full border p-3 rounded"
+          className="w-full border p-2 rounded"
           required
         />
 
         <select
           value={category}
           onChange={(e) => setCategory(e.target.value)}
-          className="w-full border p-3 rounded"
+          className="w-full border p-2 rounded"
         >
           <option value="needs">Needs</option>
           <option value="wants">Wants</option>
-          <option value="savings">Savings</option>
+          <option value="investment">Investment</option>
         </select>
 
-        <button className="bg-blue-600 text-white px-6 py-3 rounded">
-          {editingId ? "Update Project" : "Add Project"}
+        <button
+          type="submit"
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:scale-105 transition"
+        >
+          {editingId ? "Update Project" : "Create Project"}
         </button>
+
       </form>
 
       {/* PROJECT LIST */}
-      <div className="space-y-4">
+      <div className="grid gap-4">
         {projects.map((project) => (
           <div
             key={project._id}
-            className="p-4 border rounded flex justify-between"
+            className="bg-white p-4 rounded-xl shadow flex justify-between items-center hover:shadow-lg transition"
           >
             <div>
-              <h2 className="font-semibold">{project.title}</h2>
+              <h3 className="font-semibold">{project.title}</h3>
               <p>${project.amount}</p>
-              <p className="text-sm text-gray-500">{project.category}</p>
+              <span className="text-sm text-gray-500">{project.category}</span>
             </div>
 
-            <div>
+            <div className="space-x-2">
               <button
-                onClick={() => handleEdit(project)}
-                className="text-blue-500 mr-4"
+                onClick={() => {
+                  setEditingId(project._id);
+                  setTitle(project.title);
+                  setAmount(project.amount);
+                  setCategory(project.category);
+                }}
+                className="text-yellow-600"
               >
                 Edit
               </button>
+
               <button
                 onClick={() => handleDelete(project._id)}
-                className="text-red-500"
+                className="text-red-600"
               >
                 Delete
               </button>
@@ -189,6 +167,7 @@ const ProjectPage = () => {
           </div>
         ))}
       </div>
+
     </div>
   );
 };

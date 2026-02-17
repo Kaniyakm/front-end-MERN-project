@@ -6,9 +6,11 @@
  Separates public and protected routes.
 
 *****************************************************************************************/
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 import React from "react";
-import { Routes, Route, Navigate } from "react-router-dom"; // Add Navigate
+import { Routes, Route, Navigate } from "react-router-dom";
 
 import Layout from "./components/layout/Layout";
 import ProtectedRoute from "./routes/ProtectedRoute";
@@ -24,7 +26,7 @@ const App = () => {
   return (
     <Layout>
       <Routes>
-        {/* ADD THIS LINE - Root Route */}
+        {/* Root Route */}
         <Route path="/" element={<Navigate to="/login" replace />} />
 
         {/* Public Routes */}
@@ -34,7 +36,11 @@ const App = () => {
         {/* Protected Routes */}
         <Route
           path="/dashboard"
-          element={<Dashboard />}
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
         />
 
         <Route
@@ -57,6 +63,16 @@ const App = () => {
 
         {/* Fallback */}
         <Route path="*" element={<NotFound />} />
+        {/* Toast Container (GLOBAL) */}
+  <ToastContainer
+    position="top-right"
+    autoClose={3000}
+    hideProgressBar={false}
+    newestOnTop
+    closeOnClick
+    pauseOnHover
+    theme="colored"
+  />
       </Routes>
     </Layout>
   );
