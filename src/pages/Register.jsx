@@ -1,21 +1,21 @@
 /*****************************************************************************************
  FILE: Register.jsx
- ------------------------------------------------------------------------------------------
  PURPOSE:
- Registers new user and redirects to login.
-
- BACKEND:
- POST /auth/register
+ - User registration
+ - Service layer integration
+ - Toast notifications
+ - Redirect after success
 *****************************************************************************************/
 
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import authService from "../api/authService";
+import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-toastify";
+import authService from "../api/authService";
 
 const Register = () => {
   const navigate = useNavigate();
-  const [form, setForm] = useState({
+
+  const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
@@ -23,45 +23,91 @@ const Register = () => {
 
   const [loading, setLoading] = useState(false);
 
-  /* -------------------------------------------------------------------------- */
-  /* HANDLE REGISTER                                                            */
-  /* -------------------------------------------------------------------------- */
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      await authService.register(form); // CONNECTS TO BACKEND
-      toast.success("Account created successfully!");
+      await authService.register(formData);
+
+      toast.success("Registration successful 🎉");
+
       navigate("/login");
+
     } catch (error) {
-      toast.error("Registration failed");
+      toast.error(
+        error.response?.data?.message || "Registration failed"
+      );
     } finally {
       setLoading(false);
     }
   };
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
-
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900">
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg w-96 space-y-6"
-      >
-        <h2 className="text-2xl font-bold text-center">Register</h2>
+    <div className="min-h-screen flex items-center justify-center bg-gray-100">
 
-        <input name="name" placeholder="Name" onChange={handleChange} required className="w-full p-3 border rounded" />
-        <input name="email" type="email" placeholder="Email" onChange={handleChange} required className="w-full p-3 border rounded" />
-        <input name="password" type="password" placeholder="Password" onChange={handleChange} required className="w-full p-3 border rounded" />
+      <div className="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md">
 
-        <button className="w-full bg-green-600 text-white p-3 rounded hover:scale-105 transition">
-          {loading ? "Creating..." : "Register"}
-        </button>
-      </form>
+        <h2 className="text-2xl font-semibold mb-6 text-center">
+          Create Account
+        </h2>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+
+          <input
+            type="text"
+            name="name"
+            placeholder="Full Name"
+            value={formData.name}
+            onChange={handleChange}
+            className="w-full border p-3 rounded-lg"
+            required
+          />
+
+          <input
+            type="email"
+            name="email"
+            placeholder="Email"
+            value={formData.email}
+            onChange={handleChange}
+            className="w-full border p-3 rounded-lg"
+            required
+          />
+
+          <input
+            type="password"
+            name="password"
+            placeholder="Password"
+            value={formData.password}
+            onChange={handleChange}
+            className="w-full border p-3 rounded-lg"
+            required
+          />
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-green-600 text-white py-3 rounded-lg hover:opacity-90 transition disabled:opacity-50"
+          >
+            {loading ? "Creating..." : "Register"}
+          </button>
+
+          <p className="text-center mt-4">
+            Already have an account?{" "}
+            <Link to="/login" className="text-blue-600 font-semibold">
+              Login
+            </Link>
+          </p>
+
+        </form>
+      </div>
     </div>
   );
 };

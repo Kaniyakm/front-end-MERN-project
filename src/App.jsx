@@ -22,6 +22,8 @@ import ProjectPage from "./pages/ProjectPage";
 import ProjectDetails from "./pages/ProjectDetails";
 import NotFound from "./pages/NotFound";
 
+import AdminDashboard from "./pages/AdminDashboard";
+
 const App = () => {
   return (
     <Layout>
@@ -39,6 +41,15 @@ const App = () => {
           element={
             <ProtectedRoute>
               <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminDashboard />
             </ProtectedRoute>
           }
         />
@@ -63,17 +74,18 @@ const App = () => {
 
         {/* Fallback */}
         <Route path="*" element={<NotFound />} />
-        {/* Toast Container (GLOBAL) */}
-  <ToastContainer
-    position="top-right"
-    autoClose={3000}
-    hideProgressBar={false}
-    newestOnTop
-    closeOnClick
-    pauseOnHover
-    theme="colored"
-  />
       </Routes>
+
+      {/* Toast Container (GLOBAL) */}
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        pauseOnHover
+        theme="colored"
+      />
     </Layout>
   );
 };
