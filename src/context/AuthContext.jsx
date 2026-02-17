@@ -6,7 +6,8 @@
 // - Automatically removes invalid tokens
 // - Exposes login and logout functions globally
 
-import { createContext, useEffect, useState } from "react";
+import React, { createContext, useState, useEffect } from "react";
+
 import api from "../api/api";
 
 /*

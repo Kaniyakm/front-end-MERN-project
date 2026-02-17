@@ -19,13 +19,16 @@ HOW IT WORKS:
 - If authenticated → render children
 ========================================================
 */
+import React, { useContext } from "react";
+import { Navigate } from "react-router-dom";
+import { AuthContext } from "../context/AuthContext";
 
 const ProtectedRoute = ({ children }) => {
-  const { user, loading } = useAuth();
+  const { user } = useContext(AuthContext);
 
-  if (loading) return <p>Checking authentication...</p>;
-
-  if (!user) return <Navigate to="/" />;
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
 
   return children;
 };
