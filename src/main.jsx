@@ -4,11 +4,10 @@
  PURPOSE:
  Application entry point.
  Wraps entire app with:
- - BrowserRouter
- - AuthProvider
- - ThemeProvider
- - ToastContainer
-
+ - BrowserRouter (for routing)
+ - AuthProvider (for JWT/global auth state)
+ - ThemeProvider (for theme toggling)
+ - ToastContainer (for notifications)
 *****************************************************************************************/
 
 import React from "react";
@@ -25,13 +24,23 @@ import "./index.css";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+    <BrowserRouter>
       <AuthProvider>
         <ThemeProvider>
           <App />
-          <ToastContainer position="top-right" autoClose={3000} />
         </ThemeProvider>
       </AuthProvider>
+
+      {/* Global toast notifications */}
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        newestOnTop
+        closeOnClick
+        pauseOnHover
+        draggable
+        theme="colored"
+      />
     </BrowserRouter>
   </React.StrictMode>
 );

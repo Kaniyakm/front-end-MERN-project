@@ -2,15 +2,19 @@
  FILE: App.jsx
  ------------------------------------------------------------------------------------------
  PURPOSE:
- Defines application routing.
- Separates public and protected routes.
-
+ Defines all application routes.
+ Separates public and protected paths.
+ Integrates Layout and global Toast notifications.
 *****************************************************************************************/
+
 import React from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
+/* -------------------------------------------------------------------------- */
+/* COMPONENTS & PAGES                                                        */
+/* -------------------------------------------------------------------------- */
 import Layout from "./components/layout/Layout";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import Dashboard from "./pages/Dashboard";
@@ -24,14 +28,14 @@ const App = () => {
   return (
     <Layout>
       <Routes>
-        {/* Root Route */}
+        {/* Redirect root → /login */}
         <Route path="/" element={<Navigate to="/login" replace />} />
 
-        {/* Public Routes */}
+        {/* ------------------ Public ------------------ */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
-        {/* Protected Routes */}
+        {/* ------------------ Protected ------------------ */}
         <Route
           path="/dashboard"
           element={
@@ -59,16 +63,16 @@ const App = () => {
           }
         />
 
-        {/* Fallback */}
+        {/* ------------------ Misc ------------------ */}
         <Route path="*" element={<NotFound />} />
       </Routes>
 
+      {/* ✅ Keep one global ToastContainer (main.jsx already has one, 
+          but leaving here doesn’t hurt if you plan local notifications) */}
       <ToastContainer
         position="top-right"
         autoClose={3000}
-        hideProgressBar={false}
         newestOnTop
-        closeOnClick
         pauseOnHover
         theme="colored"
       />

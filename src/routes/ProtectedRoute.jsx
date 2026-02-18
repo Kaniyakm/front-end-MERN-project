@@ -1,19 +1,29 @@
+/*****************************************************************************************
+ FILE: routes/ProtectedRoute.jsx
+ PURPOSE:
+ Grants access only if a token exists in AuthContext or localStorage.
+ Shows loading fallback if context still initializing.
+*****************************************************************************************/
+
+import React, { useContext } from "react";
 import { Navigate } from "react-router-dom";
-import { useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
 
-const ProtectedRoute = ({ children, allowedRoles }) => {
-  const { user, loading } = useContext(AuthContext);
+const ProtectedRoute = ({ children }) => {
+  const { token, loading } = useContext(AuthContext);
 
-  if (loading) return <div>Loading...</div>;
-
-  if (!user) return <Navigate to="/login" replace />;
-
-  if (allowedRoles && !allowedRoles.includes(user.role)) {
-    return <Navigate to="/dashboard" replace />;
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-gray-600">
+        Checking authentication...
+      </div>
+    );
   }
 
-  return children;
+  // Allow if token exists in context or localStorage
+  const authToken = token || localStorage.getItem("token");
+
+  return authToken ? children : <Navigate to="/login" replace />;
 };
 
 export default ProtectedRoute;

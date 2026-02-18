@@ -1,114 +1,61 @@
-// src/context/AuthContext.jsx
-// PHASE 3 STEP 3: Global Authentication Context
-// NOTES:
-// - Stores authenticated user state
-// - Verifies JWT token on application load
-// - Automatically removes invalid tokens
-// - Exposes login and logout functions globally
+/*****************************************************************************************
+ FILE: context/AuthContext.jsx
+ PURPOSE:
+ Global authentication state management.
+ - Stores and syncs JWT + user info
+ - Persists across refreshes
+ - Exposes login/logout helpers
+*****************************************************************************************/
 
 import React, { createContext, useState, useEffect } from "react";
-
-import api from "../api/api";
-
-/*
-========================================================
-FILE PURPOSE:
-Provides global authentication state across application.
-
-WHAT THIS DOES:
-- Stores authenticated user
-- Stores JWT token
-- Exposes login / logout functions
-- Persists auth on refresh
-========================================================
-*/
 
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  /*
-  ------------------------------------------------------
-  STATE VARIABLES
-  ------------------------------------------------------
-  user: stores logged-in user data
-  token: JWT token from backend
-  loading: prevents rendering before auth check completes
-  ------------------------------------------------------
-  */
+  // Initialize state from localStorage (so refresh keeps you logged in)
+  const [user, setUser] = useState(() => {
+    const storedUser = localStorage.getItem("user");
+    return storedUser ? JSON.parse(storedUser) : null;
+  });
 
-  const [user, setUser] = useState(null);
-  const [token, setToken] = useState(
-    localStorage.getItem("token")
-  );
+  const [token, setToken] = useState(() => localStorage.getItem("token"));
   const [loading, setLoading] = useState(true);
 
-  /*
-  ------------------------------------------------------
-  METHOD: login()
-  PURPOSE:
-  - Saves token
-  - Saves user
-  - Stores token in localStorage
-  ------------------------------------------------------
-  */
-  const login = (userData, jwt) => {
+  /* -------------------------------------------------------------------------- */
+  /* Sync state to localStorage whenever values change                          */
+  /* -------------------------------------------------------------------------- */
+  useEffect(() => {
+    if (user && token) {
+      localStorage.setItem("user", JSON.stringify(user));
+      localStorage.setItem("token", token);
+    }
+    setLoading(false);
+  }, [user, token]);
+
+  /* -------------------------------------------------------------------------- */
+  /* LOGIN & LOGOUT HELPERS                                                     */
+  /* -------------------------------------------------------------------------- */
+  const login = (userData, jwtToken) => {
     setUser(userData);
-    setToken(jwt);
-    localStorage.setItem("token", jwt);
+    setToken(jwtToken);
+    localStorage.setItem("user", JSON.stringify(userData));
+    localStorage.setItem("token", jwtToken);
   };
 
-  /*
-  ------------------------------------------------------
-  METHOD: logout()
-  PURPOSE:
-  - Clears auth state
-  - Removes token
-  ------------------------------------------------------
-  */
   const logout = () => {
     setUser(null);
     setToken(null);
+    localStorage.removeItem("user");
     localStorage.removeItem("token");
   };
 
-  /*
-  ------------------------------------------------------
-  AUTH PERSISTENCE CHECK
-  Runs once on app load
-  Verifies token by calling backend
-  ------------------------------------------------------
-  */
-  useEffect(() => {
-    const verifyUser = async () => {
-      if (!token) {
-        setLoading(false);
-        return;
-      }
-
-      try {
-        const res = await api.get("/auth/me");
-        setUser(res.data);
-      } catch {
-        logout();
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    verifyUser();
-  }, [token]);
+  const isAuthenticated = !!token;
 
   return (
     <AuthContext.Provider
-      value={{ user, token, login, logout, loading }}
+      value={{ user, token, loading, isAuthenticated, login, logout }}
     >
       {children}
     </AuthContext.Provider>
   );
 };
-
-
-
-
-export default AuthContext;
-
