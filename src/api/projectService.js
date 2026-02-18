@@ -1,80 +1,44 @@
 /*****************************************************************************************
- FILE: projectService.js
- ------------------------------------------------------------------------------------------
+ FILE: src/api/projectService.js
  PURPOSE:
- Centralized API layer for all Project-related backend communication.
-
- WHY THIS EXISTS:
- - Keeps API calls OUT of UI components
- - Makes code testable
- - Makes backend endpoints easy to change
- - Follows Service Layer pattern (enterprise architecture)
-
- BACKEND ROUTES EXPECTED:
- GET    /projects
- GET    /projects/:id
- POST   /projects
- PUT    /projects/:id
- DELETE /projects/:id
-
- NOTE:
- All requests automatically include JWT via api.js interceptor.
+ Handles CRUD operations for projects via the backend API.
 *****************************************************************************************/
-
 import api from "./api";
 
-/* -------------------------------------------------------------------------- */
-/* GET ALL PROJECTS                                                           */
-/* CONNECTS TO: GET /projects                                                 */
-/* -------------------------------------------------------------------------- */
-const getProjects = async () => {
-  const response = await api.get("/projects");
-  return response.data;
-};
-
-/* -------------------------------------------------------------------------- */
-/* GET SINGLE PROJECT                                                         */
-/* CONNECTS TO: GET /projects/:id                                             */
-/* -------------------------------------------------------------------------- */
-const getProjectById = async (id) => {
-  const response = await api.get(`/projects/${id}`);
-  return response.data;
-};
-
-/* -------------------------------------------------------------------------- */
-/* CREATE PROJECT                                                             */
-/* CONNECTS TO: POST /projects                                                */
-/* -------------------------------------------------------------------------- */
+// Create a project
 const createProject = async (projectData) => {
-  const response = await api.post("/projects", projectData);
-  return response.data;
+  const res = await api.post("/projects", projectData);
+  return res.data;
 };
 
-/* -------------------------------------------------------------------------- */
-/* UPDATE PROJECT                                                             */
-/* CONNECTS TO: PUT /projects/:id                                             */
-/* -------------------------------------------------------------------------- */
-const updateProject = async (id, projectData) => {
-  const response = await api.put(`/projects/${id}`, projectData);
-  return response.data;
+// Fetch all projects for the logged-in user
+const getProjects = async () => {
+  const res = await api.get("/projects");
+  return res.data;
 };
 
-/* -------------------------------------------------------------------------- */
-/* DELETE PROJECT                                                             */
-/* CONNECTS TO: DELETE /projects/:id                                          */
-/* -------------------------------------------------------------------------- */
+// Get single project details
+const getProjectById = async (id) => {
+  const res = await api.get(`/projects/${id}`);
+  return res.data;
+};
+
+// Update an existing project
+const updateProject = async (id, updates) => {
+  const res = await api.put(`/projects/${id}`, updates);
+  return res.data;
+};
+
+// Delete a project
 const deleteProject = async (id) => {
-  const response = await api.delete(`/projects/${id}`);
-  return response.data;
+  const res = await api.delete(`/projects/${id}`);
+  return res.data;
 };
 
-/* -------------------------------------------------------------------------- */
-/* EXPORT SERVICE OBJECT                                                      */
-/* -------------------------------------------------------------------------- */
 export default {
+  createProject,
   getProjects,
   getProjectById,
-  createProject,
   updateProject,
   deleteProject,
 };

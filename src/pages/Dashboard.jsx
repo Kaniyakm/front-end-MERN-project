@@ -2,16 +2,15 @@
  FILE: Dashboard.jsx
  ------------------------------------------------------------------------------------------
  PURPOSE:
- Main analytics hub.
+ Main analytics hub displaying a user’s financial overview.
 
  FEATURES:
  - Fetch projects from backend
- - Calculate real spending totals by category
+ - Calculate spending by category (needs / wants / investment)
  - Apply 50/30/20 rule comparison
- - Render animated financial charts
- - Display progress bars
- - Show AI Smart Advice (local logic)
- - Optional real AI backend integration
+ - Render animated financial charts & progress bars
+ - Display rule-based Smart Advice
+ - Call backend AI endpoint for advanced advice
 *****************************************************************************************/
 
 import React, { useEffect, useState } from "react";
@@ -38,7 +37,17 @@ const Dashboard = () => {
     const fetchProjects = async () => {
       try {
         const data = await projectService.getProjects();
-        setProjects(data);
+
+        // Optional: demo data if no backend projects exist
+        if (!data || data.length === 0) {
+          setProjects([
+            { name: "Housing", category: "needs", amount: 2000 },
+            { name: "Leisure", category: "wants", amount: 800 },
+            { name: "Investing", category: "investment", amount: 1000 },
+          ]);
+        } else {
+          setProjects(data);
+        }
       } catch (error) {
         console.error("Failed to fetch projects:", error);
       }
@@ -48,9 +57,8 @@ const Dashboard = () => {
   }, []);
 
   /* -------------------------------------------------------------------------- */
-  /* CALCULATE ACTUAL SPENDING FROM PROJECT DATA                               */
+  /* CALCULATE ACTUAL SPENDING TOTALS                                          */
   /* -------------------------------------------------------------------------- */
-
   const actualTotals = {
     needs: projects
       .filter((p) => p.category === "needs")
@@ -66,27 +74,16 @@ const Dashboard = () => {
   };
 
   /* -------------------------------------------------------------------------- */
-  /* CALCULATE IDEAL 50/30/20 TARGETS BASED ON INCOME                          */
+  /* CALCULATE IDEAL 50/30/20 TARGETS                                          */
   /* -------------------------------------------------------------------------- */
   const idealTotals = calculateTotals(income);
 
-  /* -------------------------------------------------------------------------- */
-  /* CALCULATE PERCENTAGE USAGE                                                 */
-  /* -------------------------------------------------------------------------- */
-  const needsPercent = income
-    ? (actualTotals.needs / income) * 100
-    : 0;
-
-  const wantsPercent = income
-    ? (actualTotals.wants / income) * 100
-    : 0;
-
-  const savingsPercent = income
-    ? (actualTotals.savings / income) * 100
-    : 0;
+  const needsPercent = income ? (actualTotals.needs / income) * 100 : 0;
+  const wantsPercent = income ? (actualTotals.wants / income) * 100 : 0;
+  const savingsPercent = income ? (actualTotals.savings / income) * 100 : 0;
 
   /* -------------------------------------------------------------------------- */
-  /* AI SMART ADVICE (LOCAL RULE-BASED LOGIC)                                  */
+  /* LOCAL SMART ADVICE (RULE‑BASED)                                           */
   /* -------------------------------------------------------------------------- */
   useEffect(() => {
     if (!income) return;
@@ -94,11 +91,14 @@ const Dashboard = () => {
     let advice = "";
 
     if (needsPercent > 50) {
-      advice = "⚠️ Your Needs spending exceeds the recommended 50%. Consider reducing fixed expenses.";
+      advice =
+        "⚠️ Your Needs spending exceeds the recommended 50%. Consider reducing fixed expenses.";
     } else if (wantsPercent > 30) {
-      advice = "⚠️ Your Wants spending exceeds 30%. Try limiting discretionary spending.";
+      advice =
+        "⚠️ Your Wants spending exceeds 30%. Try limiting discretionary spending.";
     } else if (savingsPercent < 20) {
-      advice = "⚠️ Your Savings are below 20%. Increase investments for long-term stability.";
+      advice =
+        "⚠️ Your Savings are below 20%. Increase investments for long‑term stability.";
     } else {
       advice = "✅ Great job! Your spending aligns well with the 50/30/20 rule.";
     }
@@ -107,45 +107,41 @@ const Dashboard = () => {
   }, [needsPercent, wantsPercent, savingsPercent, income]);
 
   /* -------------------------------------------------------------------------- */
-  /* OPTIONAL: REAL AI INTEGRATION (CALL BACKEND OPENAI ROUTE)                 */
+  /* REAL AI ADVICE (BACKEND OPENAI INTEGRATION)                               */
   /* -------------------------------------------------------------------------- */
   const fetchRealAIAdvice = async () => {
     try {
       setLoadingAI(true);
 
-      const response = await api.post("/ai-advice", {
+      const response = await api.post("/insights/advice", {
         income,
         projects,
       });
 
       setAiAdvice(response.data.advice);
-
     } catch (error) {
       console.error("AI request failed:", error);
+      setAiAdvice("AI advice unavailable. Please try again later.");
     } finally {
       setLoadingAI(false);
     }
   };
 
   /* -------------------------------------------------------------------------- */
-  /* RENDER                                                                     */
+  /* RENDER CONTENT                                                             */
   /* -------------------------------------------------------------------------- */
   return (
     <div className="p-8 space-y-8">
-
       {/* PAGE TITLE */}
       <h1 className="text-3xl font-bold text-gray-800 dark:text-white">
-        Balance Blueprint Dashboard
+        Balance Blueprint Dashboard
       </h1>
 
-      {/* ---------------------------------------------------------------------- */}
-      {/* INCOME INPUT SECTION                                                   */}
-      {/* ---------------------------------------------------------------------- */}
+      {/* INCOME INPUT SECTION */}
       <div className="bg-white dark:bg-gray-800 p-6 rounded shadow">
         <h2 className="font-semibold mb-4 text-gray-800 dark:text-white">
-          Monthly Income
+          Monthly Income
         </h2>
-
         <input
           type="number"
           value={income}
@@ -154,42 +150,36 @@ const Dashboard = () => {
         />
       </div>
 
-      {/* ---------------------------------------------------------------------- */}
-      {/* PROGRESS BARS (ACTUAL VS IDEAL COMPARISON)                            */}
-      {/* ---------------------------------------------------------------------- */}
+      {/* PROGRESS BARS */}
       <div className="space-y-4">
         <ProgressBar
-          label={`Needs ($${actualTotals.needs})`}
+          label={`Needs ($${actualTotals.needs})`}
           percentage={needsPercent}
         />
         <ProgressBar
-          label={`Wants ($${actualTotals.wants})`}
+          label={`Wants ($${actualTotals.wants})`}
           percentage={wantsPercent}
         />
         <ProgressBar
-          label={`Savings ($${actualTotals.savings})`}
+          label={`Savings ($${actualTotals.savings})`}
           percentage={savingsPercent}
         />
       </div>
 
-      {/* ---------------------------------------------------------------------- */}
-      {/* FINANCIAL CHART VISUALIZATION                                          */}
-      {/* ---------------------------------------------------------------------- */}
-      <FinanceChart totals={actualTotals} />
+      {/* FINANCIAL CHART */}
+      <FinanceChart totals={actualTotals} ideal={idealTotals} />
 
-      {/* ---------------------------------------------------------------------- */}
-      {/* AI SMART ADVICE DISPLAY                                                */}
-      {/* ---------------------------------------------------------------------- */}
+      {/* SMART ADVICE */}
       <SmartAdviceCard message={aiAdvice} />
 
-      {/* Optional Real AI Button */}
+      {/* AI ADVICE BUTTON */}
       <button
         onClick={fetchRealAIAdvice}
-        className="mt-4 bg-indigo-600 text-white px-4 py-2 rounded hover:scale-105 transition"
+        disabled={loadingAI}
+        className="mt-4 bg-indigo-600 text-white px-4 py-2 rounded hover:scale-105 transition disabled:opacity-50"
       >
-        {loadingAI ? "Analyzing..." : "Get Advanced AI Advice"}
+        {loadingAI ? "Analyzing..." : "Get Advanced AI Advice"}
       </button>
-
     </div>
   );
 };
