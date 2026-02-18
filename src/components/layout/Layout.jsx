@@ -1,13 +1,14 @@
 import React, { useContext, useState } from "react";
 import { ThemeContext } from "../../context/ThemeContext";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext";
+import { AuthContext } from "../../context/AuthContext";
 
 const Layout = ({ children }) => {
   const { toggleTheme, darkMode } = useContext(ThemeContext);
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
-  const { logout } = useAuth();
+const { logout } = useContext(AuthContext);
+
 
   const go = (path) => {
     navigate(path);
