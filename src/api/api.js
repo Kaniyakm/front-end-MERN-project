@@ -5,31 +5,20 @@
  - Attaches JWT automatically
  - Handles unauthorized errors
 *****************************************************************************************/
-
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://localhost:5000/api",
+  baseURL: import.meta.env.VITE_API_URL || "http://localhost:5000/api",
 });
 
-/* ===============================
-   REQUEST INTERCEPTOR
-   Attach JWT to every request
-================================ */
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
-
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
-
   return config;
 });
 
-/* ===============================
-   RESPONSE INTERCEPTOR
-   Auto logout on 401
-================================ */
 api.interceptors.response.use(
   (response) => response,
   (error) => {
@@ -37,7 +26,6 @@ api.interceptors.response.use(
       localStorage.removeItem("token");
       window.location.href = "/login";
     }
-
     return Promise.reject(error);
   }
 );
