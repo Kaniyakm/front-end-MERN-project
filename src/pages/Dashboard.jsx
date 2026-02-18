@@ -167,7 +167,11 @@ const Dashboard = () => {
       </div>
 
       {/* FINANCIAL CHART */}
-      <FinanceChart totals={actualTotals} ideal={idealTotals} />
+      <FinanceChart 
+      needs={actualTotals.needs}
+  wants={actualTotals.wants}
+  savings={actualTotals.savings}
+/>
 
       {/* SMART ADVICE */}
       <SmartAdviceCard message={aiAdvice} />
