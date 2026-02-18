@@ -7,6 +7,7 @@
 *****************************************************************************************/
 import axios from "axios";
 
+// Shows the base URL in browser console (helpful during demo)
 console.log("API BASE URL:", import.meta.env.VITE_API_URL);
 
 const api = axios.create({

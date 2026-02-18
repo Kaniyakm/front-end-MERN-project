@@ -16,7 +16,7 @@ const Register = () => {
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
-    name: "",
+    username: "",     // ✅ matches backend expectation
     email: "",
     password: "",
   });
@@ -36,14 +36,13 @@ const Register = () => {
 
     try {
       await authService.register(formData);
-
       toast.success("Registration successful 🎉");
-
       navigate("/login");
-
     } catch (error) {
       toast.error(
-        error.response?.data?.message || "Registration failed"
+        error.response?.data?.message ||
+          error.response?.data?.errors?.[0]?.msg ||
+          "Registration failed"
       );
     } finally {
       setLoading(false);
@@ -52,20 +51,17 @@ const Register = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
-
       <div className="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md">
-
         <h2 className="text-2xl font-semibold mb-6 text-center">
           Create Account
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-
           <input
             type="text"
-            name="name"
-            placeholder="Full Name"
-            value={formData.name}
+            name="username"   // ✅ changed name attribute
+            placeholder="Username"
+            value={formData.username}
             onChange={handleChange}
             className="w-full border p-3 rounded-lg"
             required
@@ -105,7 +101,6 @@ const Register = () => {
               Login
             </Link>
           </p>
-
         </form>
       </div>
     </div>
