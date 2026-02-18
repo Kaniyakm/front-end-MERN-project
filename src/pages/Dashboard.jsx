@@ -174,7 +174,7 @@ const Dashboard = () => {
 />
 
       {/* SMART ADVICE */}
-      <SmartAdviceCard message={aiAdvice} />
+<SmartAdviceCard advice={aiAdvice} />
 
       {/* AI ADVICE BUTTON */}
       <button
