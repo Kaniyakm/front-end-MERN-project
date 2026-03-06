@@ -15,25 +15,35 @@
 
 *****************************************************************************************/
 
-import React from "react";
+import React from 'react';
+import { motion } from 'motion/react';
 
-const Card = ({ children, className = "" }) => {
+/**
+ * Card Component
+ * 
+ * Glassmorphic card with optional hover animation
+ * 
+ * @param {ReactNode} children - Card content
+ * @param {string} [className=''] - Additional CSS classes
+ * @param {boolean} [hover=true] - Enable hover animation
+ */
+const Card = ({ 
+  children, 
+  className = '', 
+  hover = true,
+  ...props 
+}) => {
   return (
-    <div
-      className={`
-        bg-white 
-        dark:bg-gray-800 
-        rounded-2xl 
-        shadow-md 
-        p-6 
-        transition-all 
-        duration-300 
-        hover:shadow-xl
-        ${className}
-      `}
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+      whileHover={hover ? { y: -4 } : {}}
+      className={`glass-card ${className}`}
+      {...props}
     >
       {children}
-    </div>
+    </motion.div>
   );
 };
 

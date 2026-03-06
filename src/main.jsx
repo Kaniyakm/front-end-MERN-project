@@ -1,46 +1,20 @@
-/*****************************************************************************************
- FILE: main.jsx
- ------------------------------------------------------------------------------------------
- PURPOSE:
- Application entry point.
- Wraps entire app with:
- - BrowserRouter (for routing)
- - AuthProvider (for JWT/global auth state)
- - ThemeProvider (for theme toggling)
- - ToastContainer (for notifications)
-*****************************************************************************************/
+// ─────────────────────────────────────────────────────────────────────────────
+// FILE: src/main.jsx
+// STATUS: ✏️  UPDATED
+// CHANGES FROM ORIGINAL:
+//   • Import path for index.css updated to './styles/index.css'
+//     (CSS moved from src/ root to src/styles/ for organisation)
+//   • StrictMode kept — helps catch double-render issues in dev
+// ─────────────────────────────────────────────────────────────────────────────
 
-import React from "react";
-import ReactDOM from "react-dom/client";
-import { BrowserRouter } from "react-router-dom";
-import { ToastContainer } from "react-toastify";
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
+import './styles/index.css';
+import App from './App';
 
-import App from "./App";
-import { AuthProvider } from "./context/AuthContext";
-import { ThemeProvider } from "./context/ThemeContext";
-
-import "react-toastify/dist/ReactToastify.css";
-import "./index.css";
-
-ReactDOM.createRoot(document.getElementById("root")).render(
-  <React.StrictMode>
-    <BrowserRouter>
-      <AuthProvider>
-        <ThemeProvider>
-          <App />
-        </ThemeProvider>
-      </AuthProvider>
-
-      {/* Global toast notifications */}
-      <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        newestOnTop
-        closeOnClick
-        pauseOnHover
-        draggable
-        theme="colored"
-      />
-    </BrowserRouter>
-  </React.StrictMode>
+createRoot(document.getElementById('root')).render(
+  <StrictMode>
+    <App />
+  </StrictMode>
 );
+

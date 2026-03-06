@@ -1,83 +1,55 @@
-/*****************************************************************************************
- FILE: App.jsx
- ------------------------------------------------------------------------------------------
- PURPOSE:
- Defines all application routes.
- Separates public and protected paths.
- Integrates Layout and global Toast notifications.
-*****************************************************************************************/
+// ─────────────────────────────────────────────────────────────────────────────
+// FILE: src/App.jsx
+// STATUS: ✔️ CLEAN — Toaster removed, ToastContainer kept
+// ─────────────────────────────────────────────────────────────────────────────
+import React from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
-import React from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { AuthProvider }  from './context/AuthContext';
+import { ThemeProvider } from './context/ThemeContext';
+import ProtectedRoute    from './routes/ProtectedRoute';
 
-/* -------------------------------------------------------------------------- */
-/* COMPONENTS & PAGES                                                        */
-/* -------------------------------------------------------------------------- */
-import Layout from "./components/layout/Layout";
-import ProtectedRoute from "./routes/ProtectedRoute";
-import Dashboard from "./pages/Dashboard";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import ProjectPage from "./pages/ProjectPage";
-import ProjectDetails from "./pages/ProjectDetails";
-import NotFound from "./pages/NotFound";
+import Login          from './pages/Login';
+import Dashboard      from './pages/Dashboard';
+import ProjectPage    from './pages/ProjectPage';
+import ProjectDetails from './pages/ProjectDetails';
+import Budget         from './pages/Budget';
+import Analytics      from './pages/Analytics';
 
-const App = () => {
+export default function App() {
   return (
-    <Layout>
-      <Routes>
-        {/* Redirect root → /login */}
-        <Route path="/" element={<Navigate to="/login" replace />} />
+    <AuthProvider>
+      <ThemeProvider>
+        <BrowserRouter>
+          <Routes>
+            {/* Public */}
+            <Route path="/login" element={<Login />} />
 
-        {/* ------------------ Public ------------------ */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+            {/* Protected */}
+            <Route path="/dashboard"      element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+            <Route path="/projects"       element={<ProtectedRoute><ProjectPage /></ProtectedRoute>} />
+            <Route path="/projects/:id"   element={<ProtectedRoute><ProjectDetails /></ProtectedRoute>} />
+            <Route path="/budget"         element={<ProtectedRoute><Budget /></ProtectedRoute>} />
+            <Route path="/analytics"      element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
 
-        {/* ------------------ Protected ------------------ */}
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          }
+            {/* Fallbacks */}
+            <Route path="/"  element={<Navigate to="/dashboard" replace />} />
+            <Route path="*"  element={<Navigate to="/dashboard" replace />} />
+          </Routes>
+        </BrowserRouter>
+
+        {/* ToastContainer ONLY — Toaster removed */}
+        <ToastContainer
+          position="top-right"
+          autoClose={3000}
+          newestOnTop
+          pauseOnHover
+          theme="colored"
         />
-
-        <Route
-          path="/projects"
-          element={
-            <ProtectedRoute>
-              <ProjectPage />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/projects/:id"
-          element={
-            <ProtectedRoute>
-              <ProjectDetails />
-            </ProtectedRoute>
-          }
-        />
-
-        {/* ------------------ Misc ------------------ */}
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-
-      {/* ✅ Keep one global ToastContainer (main.jsx already has one, 
-          but leaving here doesn’t hurt if you plan local notifications) */}
-      <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        newestOnTop
-        pauseOnHover
-        theme="colored"
-      />
-    </Layout>
+      </ThemeProvider>
+    </AuthProvider>
   );
-};
+}
 
-export default App;

@@ -1,44 +1,12 @@
-/*****************************************************************************************
- FILE: src/api/projectService.js
- PURPOSE:
- Handles CRUD operations for projects via the backend API.
-*****************************************************************************************/
-import api from "./api";
+// FILE: src/api/projectService.js
+import api from './api';  // default import — no curly braces
 
-// Create a project
-const createProject = async (projectData) => {
-  const res = await api.post("/projects", projectData);
-  return res.data;
+const projectService = {
+  getProjects:   async ()      => (await api.get('/projects')).data.data,
+  getProject:    async (id)    => (await api.get(`/projects/${id}`)).data.data,
+  createProject: async (form)  => (await api.post('/projects', { name: form.title, amount: Number(form.amount), category: form.category, description: form.description })).data.data,
+  updateProject: async (id, f) => (await api.put(`/projects/${id}`, { name: f.title, amount: Number(f.amount), category: f.category, description: f.description })).data.data,
+  deleteProject: async (id)    => api.delete(`/projects/${id}`),
 };
 
-// Fetch all projects for the logged-in user
-const getProjects = async () => {
-  const res = await api.get("/projects");
-  return res.data;
-};
-
-// Get single project details
-const getProjectById = async (id) => {
-  const res = await api.get(`/projects/${id}`);
-  return res.data;
-};
-
-// Update an existing project
-const updateProject = async (id, updates) => {
-  const res = await api.put(`/projects/${id}`, updates);
-  return res.data;
-};
-
-// Delete a project
-const deleteProject = async (id) => {
-  const res = await api.delete(`/projects/${id}`);
-  return res.data;
-};
-
-export default {
-  createProject,
-  getProjects,
-  getProjectById,
-  updateProject,
-  deleteProject,
-};
+export default projectService;

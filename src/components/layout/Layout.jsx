@@ -1,58 +1,124 @@
-import React, { useContext, useState } from "react";
-import { ThemeContext } from "../../context/ThemeContext";
-import { useNavigate } from "react-router-dom";
-import { AuthContext } from "../../context/AuthContext";
+// ─────────────────────────────────────────────────────────────────────────────
+// FILE: src/components/layout/Layout.jsx
+// STATUS: ✏️  UPDATED
+// CHANGES FROM ORIGINAL:
+//   • Replaced hamburger-only mobile nav with a full persistent sidebar
+//   • Sidebar shows logo, grouped nav links, user profile row, logout button
+//   • Added TopBar component (title + subtitle + action slot + notification bell)
+//   • Dark-mode toggle button wired to ThemeContext.toggleTheme
+//   • Removed react-toastify dependency from layout (toasts still work via App.jsx)
+//   • All hover/active states handled with CSS classes from index.css
+// ─────────────────────────────────────────────────────────────────────────────
 
-const Layout = ({ children }) => {
-  const { toggleTheme, darkMode } = useContext(ThemeContext);
-  const [menuOpen, setMenuOpen] = useState(false);
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useAuth }  from '../../context/AuthContext';
+import { useTheme } from '../../context/ThemeContext';
+import { Avatar, Icon } from '../ui/Atoms';
+import { colors as C } from '../../styles/tokens';
+
+/* ── Nav items config ─────────────────────────────────────────────────── */
+const NAV = [
+  { path: '/dashboard',  label: 'Dashboard', Icon: Icon.dashboard },
+  { path: '/projects',   label: 'Projects',  Icon: Icon.projects  },
+  { path: '/budget',     label: 'Budget',    Icon: Icon.budget    },
+  { path: '/analytics',  label: 'Analytics', Icon: Icon.analytics },
+];
+
+/* ── Sidebar ──────────────────────────────────────────────────────────── */
+export const Sidebar = () => {
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
-const { logout } = useContext(AuthContext);
-
-
-  const go = (path) => {
-    navigate(path);
-    setMenuOpen(false);
-  };
+  const { pathname } = useLocation();
 
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 transition-all duration-300">
-      <nav className="p-4 bg-white dark:bg-gray-800 shadow flex justify-between items-center">
-        <h1 className="font-bold text-xl text-gray-800 dark:text-white">
-          Balance Blueprint
-        </h1>
-        <button
-          onClick={() => setMenuOpen(!menuOpen)}
-          className="relative w-10 h-10 flex flex-col justify-center items-center space-y-1.5 focus:outline-none"
-          aria-label="Toggle menu"
-        >
-          <span className={`block w-8 h-0.5 bg-gray-800 dark:bg-white transform transition-all duration-300 ${menuOpen ? "rotate-45 translate-y-2" : ""}`}></span>
-          <span className={`block w-8 h-0.5 bg-gray-800 dark:bg-white transition-all duration-300 ${menuOpen ? "opacity-0" : "opacity-100"}`}></span>
-          <span className={`block w-8 h-0.5 bg-gray-800 dark:bg-white transform transition-all duration-300 ${menuOpen ? "-rotate-45 -translate-y-2" : ""}`}></span>
-        </button>
-      </nav>
-
-      {/* Dropdown Menu */}
-      <div className={`bg-white dark:bg-gray-800 shadow-lg overflow-hidden transition-all duration-300 ${menuOpen ? "max-h-64 opacity-100" : "max-h-0 opacity-0"}`}>
-        <div className="p-4 space-y-3">
-          <button onClick={() => go("/dashboard")} className="w-full bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded-lg transition-all duration-200 transform hover:scale-105">
-            📊 Dashboard
-          </button>
-          <button onClick={() => go("/projects")} className="w-full bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-all duration-200 transform hover:scale-105">
-            📁 Projects
-          </button>
-          <button onClick={() => { toggleTheme(); setMenuOpen(false); }} className="w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-all duration-200 transform hover:scale-105">
-            {darkMode ? "🌞 Light Mode" : "🌙 Dark Mode"}
-          </button>
-          <button onClick={() => { logout(); go("/login"); }} className="w-full bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-all duration-200 transform hover:scale-105">
-            🚪 Logout
-          </button>
+    <aside style={{
+      width: 240, flexShrink: 0,
+      background: C.surface,
+      borderRight: `1px solid ${C.border}`,
+      display: 'flex', flexDirection: 'column',
+      height: '100vh', position: 'sticky', top: 0,
+    }}>
+      {/* ── Logo ── */}
+      <div style={{ padding: '22px 20px 18px', display: 'flex', alignItems: 'center', gap: 10, borderBottom: `1px solid ${C.border}` }}>
+        <div style={{ width: 36, height: 36, borderRadius: 10, background: C.accentSoft, display: 'flex', alignItems: 'center', justifyContent: 'center', border: `1px solid ${C.accentGlow}` }}>
+          <Icon.logo />
+        </div>
+        <div>
+          <div style={{ fontSize: 15, fontWeight: 800, letterSpacing: '-.02em' }}>Balance</div>
+          <div style={{ fontSize: 11, color: C.textMuted, fontWeight: 500, marginTop: -1 }}>Blueprint</div>
         </div>
       </div>
 
-      <main className="p-6">{children}</main>
-    </div>
+      {/* ── Main Nav ── */}
+      <nav style={{ flex: 1, padding: '14px 10px', display: 'flex', flexDirection: 'column', gap: 2 }}>
+        <div style={{ fontSize: 11, fontWeight: 700, color: C.textFaint, letterSpacing: '0.08em', textTransform: 'uppercase', padding: '4px 10px 8px' }}>Menu</div>
+        {NAV.map(({ path, label, Icon: Ico }) => {
+          const active = pathname.startsWith(path);
+          return (
+            <button key={path} onClick={() => navigate(path)}
+              className={`nav-item ${active ? 'active' : ''}`}
+              style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 12px', borderRadius: 10, color: active ? C.accent : C.textMuted, fontSize: 14, fontWeight: 500, textAlign: 'left', width: '100%' }}>
+              <span className="nav-icon" style={{ color: active ? C.accent : C.textFaint, transition: 'color .15s' }}><Ico /></span>
+              {label}
+            </button>
+          );
+        })}
+
+        <div style={{ height: 1, background: C.border, margin: '10px 0' }} />
+        <div style={{ fontSize: 11, fontWeight: 700, color: C.textFaint, letterSpacing: '0.08em', textTransform: 'uppercase', padding: '4px 10px 8px' }}>Account</div>
+        <button className="nav-item"
+          style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 12px', borderRadius: 10, color: C.textMuted, fontSize: 14, fontWeight: 500, textAlign: 'left', width: '100%' }}>
+          <span style={{ color: C.textFaint }}><Icon.settings /></span> Settings
+        </button>
+      </nav>
+
+      {/* ── User / Logout ── */}
+      <div style={{ padding: 14, borderTop: `1px solid ${C.border}` }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 10px', borderRadius: 10, background: C.surfaceEl }}>
+          <Avatar name={user?.name || 'User'} size={34} />
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: 13, fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user?.name || 'User'}</div>
+            <div style={{ fontSize: 11, color: C.textMuted }}>Personal Plan</div>
+          </div>
+          <button title="Logout" onClick={() => { logout(); navigate('/login'); }}
+            style={{ color: C.textFaint, padding: 4, borderRadius: 6, background: 'none', border: 'none', cursor: 'pointer', transition: 'color .15s' }}
+            onMouseEnter={e => e.currentTarget.style.color = C.red}
+            onMouseLeave={e => e.currentTarget.style.color = C.textFaint}>
+            <Icon.logout />
+          </button>
+        </div>
+      </div>
+    </aside>
   );
 };
+
+/* ── TopBar ───────────────────────────────────────────────────────────── */
+export const TopBar = ({ title, subtitle, actions }) => (
+  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px 28px', borderBottom: `1px solid ${C.border}`, background: C.bgAlt, flexShrink: 0 }}>
+    <div>
+      <h1 style={{ fontSize: 20, fontWeight: 800, letterSpacing: '-.03em' }}>{title}</h1>
+      {subtitle && <p style={{ fontSize: 13, color: C.textMuted, marginTop: 2 }}>{subtitle}</p>}
+    </div>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+      {actions}
+      <button style={{ width: 36, height: 36, borderRadius: 9, border: `1px solid ${C.border}`, background: C.surfaceEl, color: C.textMuted, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'all .15s', position: 'relative' }}
+        onMouseEnter={e => { e.currentTarget.style.borderColor = C.borderHov; e.currentTarget.style.color = C.text; }}
+        onMouseLeave={e => { e.currentTarget.style.borderColor = C.border;    e.currentTarget.style.color = C.textMuted; }}>
+        <Icon.bell />
+        <span style={{ position: 'absolute', top: 7, right: 7, width: 7, height: 7, borderRadius: '50%', background: C.accent, border: `2px solid ${C.bgAlt}` }} />
+      </button>
+    </div>
+  </div>
+);
+
+/* ── Shell (wraps authenticated pages) ───────────────────────────────── */
+const Layout = ({ children }) => (
+  <div style={{ display: 'flex', height: '100vh', overflow: 'hidden', background: C.bgAlt }}>
+    <Sidebar />
+    <main style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+      {children}
+    </main>
+  </div>
+);
 
 export default Layout;

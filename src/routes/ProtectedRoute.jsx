@@ -1,29 +1,30 @@
-/*****************************************************************************************
- FILE: routes/ProtectedRoute.jsx
- PURPOSE:
- Grants access only if a token exists in AuthContext or localStorage.
- Shows loading fallback if context still initializing.
-*****************************************************************************************/
+// ─────────────────────────────────────────────────────────────────────────────
+// FILE: src/routes/ProtectedRoute.jsx
+// STATUS: ✏️  UPDATED
+// CHANGES FROM ORIGINAL:
+//   • Now reads isLoading from AuthContext — shows a centered spinner while
+//     auth state is being rehydrated from sessionStorage on first render,
+//     preventing a flash-redirect to /login on page refresh
+//   • Wraps children in <Layout> (sidebar + topbar shell) automatically,
+//     so individual page components don't need to import Layout themselves
+// ─────────────────────────────────────────────────────────────────────────────
 
-import React, { useContext } from "react";
-import { Navigate } from "react-router-dom";
-import { AuthContext } from "../context/AuthContext";
+import { Navigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import Layout from '../components/layout/Layout';
+import { colors as C } from '../styles/tokens';
 
-const ProtectedRoute = ({ children }) => {
-  const { token, loading } = useContext(AuthContext);
+export default function ProtectedRoute({ children }) {
+  const { user, isLoading } = useAuth();
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center text-gray-600">
-        Checking authentication...
-      </div>
-    );
-  }
+  // Waiting for sessionStorage rehydration
+  if (isLoading) return (
+    <div style={{ minHeight:'100vh', background:C.bg, display:'flex', alignItems:'center', justifyContent:'center' }}>
+      <div className="spin" style={{ width:32, height:32, border:`3px solid ${C.border}`, borderTopColor:C.accent, borderRadius:'50%' }} />
+    </div>
+  );
 
-  // Allow if token exists in context or localStorage
-  const authToken = token || localStorage.getItem("token");
+  if (!user) return <Navigate to="/login" replace />;
 
-  return authToken ? children : <Navigate to="/login" replace />;
-};
-
-export default ProtectedRoute;
+  return <Layout>{children}</Layout>;
+}

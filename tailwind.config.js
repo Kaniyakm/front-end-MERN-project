@@ -1,43 +1,40 @@
 /** @type {import('tailwindcss').Config} */
-export default {
-  darkMode: "class", // Enables class-based dark mode
-
+module.exports = {
   content: [
     "./index.html",
-    "./src/**/*.{js,jsx,ts,tsx}",
+    "./src/**/*.{js,ts,jsx,tsx}",
   ],
-
+  darkMode: 'class',
   theme: {
     extend: {
-      fontFamily: {
-        sans: ["Inter", "sans-serif"],
-      },
-
       colors: {
-        primary: "#1e293b",
-        accent: "#3b82f6",
-        success: "#22c55e",
-        warning: "#f59e0b",
-        danger: "#ef4444",
+        primary: '#8b5cf6',
+        secondary: '#ec4899',
+        success: '#10b981',
+        warning: '#f59e0b',
+        danger: '#ef4444',
       },
-
+      fontFamily: {
+        sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
+      },
+      backdropBlur: {
+        xs: '2px',
+      },
       animation: {
-        fadeIn: "fadeIn 0.5s ease-in-out",
-        slideDown: "slideDown 0.3s ease-out",
+        'fade-in': 'fadeIn 0.6s ease-out',
+        'shimmer': 'shimmer 1.5s infinite',
       },
-
       keyframes: {
         fadeIn: {
-          from: { opacity: 0 },
-          to: { opacity: 1 },
+          '0%': { opacity: '0', transform: 'translateY(20px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
         },
-        slideDown: {
-          from: { opacity: 0, transform: "translateY(-10px)" },
-          to: { opacity: 1, transform: "translateY(0)" },
+        shimmer: {
+          '0%': { backgroundPosition: '-1000px 0' },
+          '100%': { backgroundPosition: '1000px 0' },
         },
       },
     },
   },
-
   plugins: [],
-};
+}
