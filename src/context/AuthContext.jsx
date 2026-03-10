@@ -1,39 +1,54 @@
-// FILE: src/context/AuthContext.jsx
-import { createContext, useContext, useState, useEffect } from 'react';
+// src/context/AuthContext.jsx
+//
+// Provides login, register, logout, and current user to the entire app.
+// Login.jsx calls useAuth() — this is the missing context that was causing crashes.
 
-export const AuthContext = createContext({ user: null, token: null, isLoading: true, login: ()=>{}, logout: ()=>{} });
+import { createContext, useContext, useState, useCallback } from 'react';
+import { authService } from '../api/authService';
 
-export const AuthProvider = ({ children }) => {
-  const [user,      setUser]      = useState(null);
-  const [token,     setToken]     = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+const AuthContext = createContext(null);
 
-  useEffect(() => {
-    const t = localStorage.getItem('token');
-    const u = localStorage.getItem('user');
-    if (t && u) { setToken(t); setUser(JSON.parse(u)); }
-    setIsLoading(false);
+export function AuthProvider({ children }) {
+  const [user, setUser] = useState(() => authService.getUser()); // restore on refresh
+  const [loading, setLoading] = useState(false);
+
+  const login = useCallback(async ({ email, password }) => {
+    setLoading(true);
+    try {
+      const userData = await authService.login({ email, password });
+      setUser(userData);
+      return userData;
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  const login = (userData, authToken) => {
-    setUser(userData);
-    setToken(authToken);
-    localStorage.setItem('token', authToken);
-    localStorage.setItem('user', JSON.stringify(userData));
-  };
+  const register = useCallback(async ({ username, email, password }) => {
+    setLoading(true);
+    try {
+      const userData = await authService.register({ username, email, password });
+      setUser(userData);
+      return userData;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
-  const logout = () => {
+  const logout = useCallback(() => {
+    authService.logout();
     setUser(null);
-    setToken(null);
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-  };
+  }, []);
 
   return (
-    <AuthContext.Provider value={{ user, token, isLoading, login, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
       {children}
     </AuthContext.Provider>
   );
-};
+}
 
-export const useAuth = () => useContext(AuthContext);
+// Hook used in Login.jsx: const { login, register } = useAuth();
+export function useAuth() {
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error('useAuth must be used inside <AuthProvider>');
+  return ctx;
+}

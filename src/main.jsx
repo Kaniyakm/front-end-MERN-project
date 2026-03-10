@@ -7,14 +7,21 @@
 //   • StrictMode kept — helps catch double-render issues in dev
 // ─────────────────────────────────────────────────────────────────────────────
 
+
+
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import './styles/index.css';
+import { BrowserRouter } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
 import App from './App';
+import './index.css';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <App />
+    <BrowserRouter>
+      <AuthProvider>   {/* ✅ Required — wraps entire app so useAuth() works */}
+        <App />
+      </AuthProvider>
+    </BrowserRouter>
   </StrictMode>
 );
-
