@@ -7,6 +7,9 @@ import { createContext, useContext, useState, useCallback } from 'react';
 import { authService } from '../api/authService';
 
 const AuthContext = createContext(null);
+export { AuthContext }; 
+
+
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => authService.getUser()); // restore on refresh
