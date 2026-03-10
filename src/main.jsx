@@ -7,11 +7,8 @@
 //   • StrictMode kept — helps catch double-render issues in dev
 // ─────────────────────────────────────────────────────────────────────────────
 
-
-
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { BrowserRouter } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import App from './App';
 import './styles/index.css';  // ✅ Updated path for CSS
