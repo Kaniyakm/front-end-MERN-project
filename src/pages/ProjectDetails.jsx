@@ -65,7 +65,7 @@ export default function ProjectDetails() {
       <div style={{ fontSize:44 }}>🔍</div>
       <div style={{ fontSize:18, fontWeight:700 }}>Project not found</div>
       <button onClick={()=>navigate('/projects')} style={{ display:'flex', alignItems:'center', gap:6, padding:'9px 18px', borderRadius:10, border:`1px solid ${C.border}`, background:'transparent', color:C.textMuted, cursor:'pointer', fontSize:14 }}>
-        <Icon.back /> Back to Projects
+      <Icon.chevronR style={{ transform:'rotate(180deg)' }} /> Back to Projects
       </button>
     </div>
   );
@@ -80,7 +80,7 @@ export default function ProjectDetails() {
         actions={
           <div style={{ display:'flex', gap:8 }}>
             <button onClick={()=>navigate('/projects')} style={{ display:'flex', alignItems:'center', gap:6, padding:'8px 14px', borderRadius:9, border:`1px solid ${C.border}`, background:'transparent', color:C.textMuted, cursor:'pointer', fontSize:13, fontWeight:600 }}>
-              <Icon.back /> Back
+              <Icon.chevronR style={{ transform:'rotate(180deg)' }} /> Back
             </button>
             {!editing && <button onClick={()=>setEditing(true)} style={{ display:'flex', alignItems:'center', gap:6, padding:'8px 14px', borderRadius:9, border:`1px solid ${C.border}`, background:C.surfaceEl, color:C.text, cursor:'pointer', fontSize:13, fontWeight:600 }}><Icon.edit /> Edit</button>}
             <button onClick={handleDelete} style={{ display:'flex', alignItems:'center', gap:6, padding:'8px 14px', borderRadius:9, border:`1px solid ${C.redSoft}`, background:C.redSoft, color:C.red, cursor:'pointer', fontSize:13, fontWeight:600 }}><Icon.trash /> Delete</button>

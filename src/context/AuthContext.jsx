@@ -13,7 +13,7 @@ export { AuthContext };
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => authService.getUser()); // restore on refresh
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setLoading] = useState(false);
 
   const login = useCallback(async ({ email, password }) => {
     setLoading(true);
@@ -43,7 +43,7 @@ export function AuthProvider({ children }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, isLoading, login, register, logout }}>
       {children}
     </AuthContext.Provider>
   );
