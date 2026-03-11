@@ -11,7 +11,7 @@ import axios from 'axios';
 console.log('API BASE URL:', import.meta.env.VITE_API_URL);
 
 const api = axios.create({
-  baseURL: `${import.meta.env.VITE_API_URL}/api` || 'http://localhost:5000/api',
+baseURL: `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api`,
   timeout: 15000, // 15s — Render free tier can be slow to wake
 });
 
