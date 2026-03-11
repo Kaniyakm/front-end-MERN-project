@@ -101,6 +101,7 @@ export const Progress = ({ value = 0, color = "#6366F1", height = 6 }) => (
 /* BADGE                                                                       */
 /* -------------------------------------------------------------------------- */
 export const Badge = ({
+  label,
   children,
   color = "#6366F1",
   bg = "#EEF2FF",
@@ -118,7 +119,7 @@ export const Badge = ({
       ...style,
     }}
   >
-    {children}
+    {label ?? children}
   </span>
 );
 
