@@ -17,6 +17,8 @@ import ProjectPage    from './pages/ProjectPage';
 import ProjectDetails from './pages/ProjectDetails';
 import Budget         from './pages/Budget';
 import Analytics      from './pages/Analytics';
+import Settings from './pages/Settings';
+
 
 export default function App() {
   return (
@@ -37,6 +39,8 @@ export default function App() {
             {/* Fallbacks */}
             <Route path="/"  element={<Navigate to="/dashboard" replace />} />
             <Route path="*"  element={<Navigate to="/dashboard" replace />} />
+          <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+
           </Routes>
         </BrowserRouter>
 

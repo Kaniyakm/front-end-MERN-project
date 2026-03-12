@@ -15,6 +15,8 @@ import { useAuth }  from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 import { Avatar, Icon } from '../ui/Atoms';
 import { colors as C } from '../../styles/tokens';
+import Footer from './Footer';
+
 
 /* ── Nav items config ─────────────────────────────────────────────────── */
 const NAV = [

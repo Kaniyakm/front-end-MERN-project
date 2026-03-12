@@ -18,7 +18,8 @@ const CAT_CFG = {
 
 const BLANK = { title:'', amount:'', category:'needs', description:'' };
 
-const inp = (sx={}) => ({ background:C.surfaceEl, border:`1.5px solid ${C.border}`, borderRadius:10, padding:'9px 12px', color:C.text, fontSize:14, outline:'none', width:'100%', ...sx });
+const inp = (sx={}) => ({ background:C.surfaceEl, border:`1.5px solid ${C.border}`, borderRadius:10, padding:'9px 12px', color:C.text, fontSize:14, outline:'none', width:'100%', position:'relative', zIndex:10, ...sx });
+
 
 // ── Inline project form ───────────────────────────────────────────────────────
 const Form = ({ init=BLANK, onSave, onCancel, busy }) => {
@@ -30,8 +31,8 @@ const Form = ({ init=BLANK, onSave, onCancel, busy }) => {
     onSave(f);
   };
   return (
-    <div className="a-fadeUp" style={{ background:C.surfaceEl, border:`1px solid ${C.borderHov}`, borderRadius:14, padding:'20px 22px', marginBottom:14 }}>
-      <div style={{ display:'grid', gridTemplateColumns:'1fr 140px 180px', gap:12, marginBottom:12 }}>
+    <div className="a-fadeUp" style={{ background:C.surfaceEl, border:`1px solid ${C.borderHov}`, borderRadius:14, padding:'20px 22px', marginBottom:14, position:'relative', zIndex:10 }}>
+       <div style={{ display:'grid', gridTemplateColumns:'1fr 140px 180px', gap:12, marginBottom:12 }}>
         <div style={{ display:'flex', flexDirection:'column', gap:5 }}>
           <label style={{ fontSize:12, fontWeight:600, color:C.textMuted }}>Title *</label>
           <input style={inp()} placeholder="e.g. Emergency Fund" value={f.title} onChange={set('title')} onFocus={e=>e.target.style.borderColor=C.accent} onBlur={e=>e.target.style.borderColor=C.border} />
