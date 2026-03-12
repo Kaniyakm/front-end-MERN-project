@@ -4,7 +4,7 @@ import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Toolti
 import { toast }       from 'react-toastify';
 import projectService  from '../api/projectService';
 import { TopBar }      from '../components/layout/Layout';
-import { C }           from '../styles/tokens';
+import { colors as C } from '../styles/tokens';
 
 const TT = { background:C.surfaceEl, border:`1px solid ${C.border}`, borderRadius:10, color:C.text, fontSize:13 };
 const Bar2 = ({ v, color }) => <div style={{ width:'100%', height:6, borderRadius:9999, background:C.border, overflow:'hidden' }}><div style={{ height:'100%', width:`${Math.min(100,v)}%`, background:color, borderRadius:9999, transition:'width .6s' }} /></div>;

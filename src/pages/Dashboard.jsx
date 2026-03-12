@@ -9,7 +9,7 @@ import projectService  from '../api/projectService';
 import { AuthContext } from '../context/AuthContext';
 import { TopBar }      from '../components/layout/Layout';
 import { Icon, Badge } from '../components/ui/Atoms';
-import { C }           from '../styles/tokens';
+import { colors as C } from '../styles/tokens';
 
 const TT = { background:C.surfaceEl, border:`1px solid ${C.border}`, borderRadius:10, color:C.text, fontSize:13 };
 

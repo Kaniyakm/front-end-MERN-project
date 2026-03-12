@@ -8,12 +8,12 @@ import { toast }               from 'react-toastify';
 import projectService          from '../api/projectService';
 import { TopBar }              from '../components/layout/Layout';
 import { Badge, Icon }         from '../components/ui/Atoms';
-import { C }                   from '../styles/tokens';
+import { colors as C } from '../styles/tokens';
 
 const CAT_CFG = {
-  needs:      { label:'Needs',      color:'blue',   bg:C.accentSoft, fg:C.accent, Ico:Icon.needs  },
-  wants:      { label:'Wants',      color:'purple', bg:C.purpleSoft, fg:C.purple, Ico:Icon.wants  },
-  investment: { label:'Investment', color:'green',  bg:C.greenSoft,  fg:C.green,  Ico:Icon.invest },
+  needs:      { label:'Needs',      color:C.accent, bg:C.accentSoft, fg:C.accent, Ico:Icon.needs  },
+  wants:      { label:'Wants',      color:C.purple, bg:C.purpleSoft, fg:C.purple, Ico:Icon.wants  },
+  investment: { label:'Investment', color:C.green,  bg:C.greenSoft,  fg:C.green,  Ico:Icon.invest },
 };
 
 const BLANK = { title:'', amount:'', category:'needs', description:'' };
